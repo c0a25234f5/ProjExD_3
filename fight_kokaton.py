@@ -103,13 +103,13 @@ class Beam:
         """
         self.img = pg.image.load("fig/beam.png")
         self.rct = self.img.get_rect()
-        self.vx = bird.dire[0]
+        self.vx = bird.dire[0] #こうかとんの向き
         self.vy = bird.dire[1]
-        self.rct.centery = bird.rct.centery + (bird.rct.bottom-bird.rct.top) * self.vy / 5
+        self.rct.centery = bird.rct.centery + (bird.rct.bottom-bird.rct.top) * self.vy / 5 #ビームの座標修正
         self.rct.centerx = bird.rct.centerx + (bird.rct.right-bird.rct.left) * self.vx / 5
         #self.vx, self.vy = +5, 0
-        self.sita= math.atan2(-(self.vy),(self.vx))
-        self.rad = math.degrees(self.sita)
+        self.sita= math.atan2(-(self.vy),(self.vx)) #極座標変換
+        self.rad = math.degrees(self.sita) #度数法変換
         self.img = pg.transform.rotozoom(self.img, self.rad, 1.0)
 
     def update(self, screen: pg.Surface):
