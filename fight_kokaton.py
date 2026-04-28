@@ -158,6 +158,28 @@ class Score:
         self.rct.center=(100, HEIGHT-50)
         screen.blit(self.img, self.rct)
 
+
+class Explosion:
+    def __init__(self, bomb:"Bomb"):
+        self.img = pg.image.load("fig/explosion.gif")
+        self.img2 = pg.transform.flip(self.img, False, True)
+        self.imgs = [self.img, self.img2]
+        self.rcts = []
+        for i in self.imgs:
+            a=i.get_rect()
+            a.center = bomb.rct.center
+            self.rcts.append(a)
+        self.life = 30
+    
+    def update(self, tmr:int, screen: pg.Surface):
+        self.life -= 1
+        if self.life > 0:
+            if tmr%6 > 3:
+                screen.blit(self.imgs[0],self.rcts[0])
+            else:
+                screen.blit(self.imgs[1],self.rcts[1])
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -169,6 +191,7 @@ def main():
     score_s=0
     score = Score(score_s) #初期得点
     beams=[] #複数ビームのリスト
+    exps = []
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -190,6 +213,8 @@ def main():
                             bombs[i] = None
                             bird.change_img(6, screen) #喜ぶエフェクト
                             score_s += 1 #得点追加
+                            exp = Explosion(bomb)
+                            exps.append(exp)
                             pg.display.update()
                         if check_bound(beam.rct) != (True, True): #画面外にいったビームの削除
                             del beams[s]                            
@@ -200,6 +225,7 @@ def main():
                 pg.display.update()
                 time.sleep(1)
                 return
+        exps = [exp for exp in exps if exp.life > 0]
         beams = [beam for beam in beams if beam is not None] #爆弾と当たったビームの削除
         bombs = [bomb for bomb in bombs if bomb is not None]  #撃ち落とした爆弾の削除             
 
@@ -211,6 +237,8 @@ def main():
         if bomb is not None:
             for bomb in bombs:
                 bomb.update(screen)
+        for exp in exps:
+            exp.update(tmr, screen)
         score.update(score_s,screen) #得点の表示
         pg.display.update()
         tmr += 1
