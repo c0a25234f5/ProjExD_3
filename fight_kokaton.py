@@ -143,6 +143,20 @@ class Bomb:
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
+class Score:
+    """
+    スコア表示
+    爆弾を撃破すると1点
+    """
+    def __init__(self, sc: int):
+        self.fonto = pg.font.SysFont(None, 30)
+        self.img = self.fonto.render(f"score: {sc}",0,(0,0,255))
+        
+    def update(self, sc:int, screen: pg.Surface):
+        self.img = self.fonto.render(f"score: {sc}",0,(0,0,255))
+        self.rct = self.img.get_rect()
+        self.rct.center=(100, HEIGHT-50)
+        screen.blit(self.img, self.rct)
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -152,6 +166,8 @@ def main():
     #bomb = Bomb((255, 0, 0), 10)
     beam = None  # ゲーム初期化時にはビームは存在しない
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+    score_s=0
+    score = Score(score_s) #初期得点
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -166,10 +182,11 @@ def main():
         for i, bomb in enumerate(bombs):
             if bomb is not None:
                 if beam is not None:
-                    if beam.rct.colliderect(bomb.rct):
+                    if beam.rct.colliderect(bomb.rct): #爆弾とビームの衝突
                         beam = None
                         bombs[i] = None
-                        bird.change_img(6, screen)   
+                        bird.change_img(6, screen) #喜ぶエフェクト
+                        score_s += 1 #得点追加
                         pg.display.update()
             if bird.rct.colliderect(bomb.rct):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
@@ -178,7 +195,7 @@ def main():
                 pg.display.update()
                 time.sleep(1)
                 return
-        bombs = [bomb for bomb in bombs if bomb is not None]               
+        bombs = [bomb for bomb in bombs if bomb is not None]  #撃ち落とした爆弾の削除             
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
@@ -187,6 +204,7 @@ def main():
         if bomb is not None:
             for bomb in bombs:
                 bomb.update(screen)
+        score.update(score_s,screen) #得点の表示
         pg.display.update()
         tmr += 1
         clock.tick(50)
