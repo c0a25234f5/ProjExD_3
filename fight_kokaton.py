@@ -2,6 +2,7 @@ import os
 import random
 import sys
 import time
+import math
 import pygame as pg
 
 
@@ -58,6 +59,7 @@ class Bird:
         引数 xy：こうかとん画像の初期位置座標タプル
         """
         self.img = __class__.imgs[(+5, 0)]
+        self.dire = (+5,0) #追加機能4　デフォルト向き
         self.rct: pg.Rect = self.img.get_rect()
         self.rct.center = xy
 
@@ -86,6 +88,8 @@ class Bird:
             self.rct.move_ip(-sum_mv[0], -sum_mv[1])
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.img = __class__.imgs[tuple(sum_mv)]
+        if sum_mv != [0,0]:
+            self.dire = sum_mv 
         screen.blit(self.img, self.rct)
 
 class Beam:
@@ -99,9 +103,14 @@ class Beam:
         """
         self.img = pg.image.load("fig/beam.png")
         self.rct = self.img.get_rect()
-        self.rct.center = bird.rct.center
-        self.rct.left = bird.rct.right
-        self.vx, self.vy = +5, 0
+        self.vx = bird.dire[0]
+        self.vy = bird.dire[1]
+        self.rct.centery = bird.rct.centery + (bird.rct.bottom-bird.rct.top) * self.vy / 5
+        self.rct.centerx = bird.rct.centerx + (bird.rct.right-bird.rct.left) * self.vx / 5
+        #self.vx, self.vy = +5, 0
+        self.sita= math.atan2(-(self.vy),(self.vx))
+        self.rad = math.degrees(self.sita)
+        self.img = pg.transform.rotozoom(self.img, self.rad, 1.0)
 
     def update(self, screen: pg.Surface):
         """
